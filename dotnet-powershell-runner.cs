@@ -1,6 +1,7 @@
 using System;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Linq;
 using System.IO;
 
 namespace Test {
@@ -15,7 +16,17 @@ namespace Test {
             ps.AddScript(cmd);
             var results = ps.Invoke();
             foreach (var result in results) {
-                Console.WriteLine(result);
+                // If the result is a PSObject, we can dig deeper into it
+                if (result.Properties != null && result.Properties.Any()) {
+                    Console.WriteLine("Properties of " + result);
+                    foreach (var property in result.Properties) {
+                        Console.WriteLine(property.Name + ": " + property.Value);
+                    }
+                    Console.WriteLine();
+                } else {
+                    // Otherwise, just write the ToString() value
+                    Console.WriteLine(result);
+                };
             }
             runspace.Close();
         }
